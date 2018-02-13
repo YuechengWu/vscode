@@ -97,7 +97,7 @@ can take in order to try and isolate the code associated with **Quick Open**.
 
 Second, we have a technical name, **Quick Open**, that we can use to search within the code.  Likely the code related to **Quick Open** uses that name somewhere within it.  There's no guarantee, but it's a logical starting point.
 
-Let's try and us the UI to help us find our code.  If we start the debugger in our editor, we can use the Inspector and trigger the Quick Open widget in order to locate it in the DOM:
+Let's try and use the UI to help us find our code.  If we start the debugger in our editor, we can use the Inspector and trigger the Quick Open widget in order to locate it in the DOM:
 
 ![Using Inspector to find Quick Open Widget](screenshots/quick-open-inspector.png)
 
@@ -146,7 +146,7 @@ AbstractKeybindingService._dispatch (abstractKeybindingService.ts:165)
 (anonymous) (keybindingService.ts:316)
 ```
 
-This vertical slice into the VSCode is interesting, and we can already learn a lot
+This vertical slice into VSCode is interesting, and we can already learn a lot
 just by examining the function names and paths.  For example, at the bottom of the stack we can see our keypress in `keybindingService.ts` and `abstractKeybindingService.ts`.  As we move up, this is wrapped in a Command object, which gets invoked.  At the very top of the stack, the code looks like it's doing things to the DOM, and likely not interesting to us for the purposes of our bug.
 
 However, in the middle, there are three frames that look promising:
@@ -236,7 +236,13 @@ At this stage, we know where our problem is.  Fixing it should be easy, right? M
 Fixing this bug, without taking into account the other cases that VSCode has to deal with, could be as simple as just removing the call to `replace(/\s/g, '')`.
 However, this might cause other issues to crop up (i.e., it might have been put here for a reason).
 
-I suggest you start with the obvious and most simple thing possible, and work up from there.  In this case, let's just remove that regex and see if it fixes things.  After changing the file, rebuilding, and restarting the editor, I see this with my original test case:
+I suggest you start with the obvious and most simple thing possible, and work up from there.  In this case, let's just remove that regex and see if it fixes things:
+
+```ts
+value = stripWildcards(value); // get rid of all wildcards
+```
+
+Now we only remove wildcards, but spaces will be left alone.  After changing the file, rebuilding, and restarting the editor, I see this with my original test case:
 
 ![](screenshots/simple-fix.png)
 
@@ -263,11 +269,11 @@ Indeed, we've broken something, and at least one test is now failing. We can
 use `git` to find this test:
 
 ```
-git grep prepareSearchForScoring
+$ git grep prepareSearchForScoring
 src/vs/base/parts/quickopen/test/common/quickOpenScorer.test.ts:        test('prepareSearchForScoring', function () {
 ```
 
-This leads us to ... and the failing test looks like this:
+This leads us to [`src/vs/base/parts/quickopen/test/common/quickOpenScorer.test.ts`](src/vs/base/parts/quickopen/test/common/quickOpenScorer.test.ts) and the failing test looks like this:
 
 ```ts
 test('prepareSearchForScoring', function () {
@@ -289,7 +295,12 @@ At this point we have a few choices:
 2. Rework our code change to adhere to what's in these tests, but add some new ones for the new logic
 3. Ask someone in the community, either via GitHub or Slack
 
-Before doing anything else, let's see if we can glean any information from
+I always encourage people to talk to others in the community, and to try and get some advice.
+However, it's also true that when you're deep in a problem like this, people won't
+necessarily know the right answer.  It's often better to try making a change and submitting
+a Pull Request, and engaging with the community there.
+
+So let's see if we can glean any information from
 git about *why* this code was written the way it was.  Maybe there is a bug
 that will explain why they are removing the whitespace.  We can use `git blame`
 and look at the final lines of this file (that's where our tests are):
@@ -355,13 +366,17 @@ Re-running the tests, this works as expected.  We've used `nativeSep` like the o
 ## Conclusion
 
 At this point we could create a Pull Request and get some feedback on our changes.
-Likely there are things to be fixed, perhaps other cases we haven't considered above.
+Likely there are things to be fixed, perhaps other cases we haven't considered above.  I'm not
+focusing on the Pull Request workflow in this walkthrough, so I leave that as an
+exercise for later.
 
-However, the point of this walkthrough was to practice how to go from a set of
-steps and to reproduce a bug toward finding the right spot to make a fix, and doing it.  Different bugs will require different approaches, but we've been able
+The point of this walkthrough was to practice how to go from a set of
+steps and to reproduce a bug toward finding the right spot to make a fix, and doing it.
+Different bugs will require different approaches, but we've been able
 to try a lot of common techniques.
 
 While lots of bugs may be beyond your current knowledge of a codebase, don't get
 overwhelmed and assume you can't contribute.  Many bugs are solvable with enough
 research and persistence.
 
+Have fun fixing bugs.  There's no shortage of them.
