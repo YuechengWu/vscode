@@ -12,6 +12,16 @@ interested in getting started fixing bugs in large projects. Our goal is to brea
 an effort to familiarize you with the process, and make it less of a magic trick
 and more the kind of thing you would feel comfortable doing on your own.
 
+During this walkthrough we will discuss and/or do the following:
+
+* Find a real bug in VSCode
+* Reproduce the bug in our own build
+* Use the Chrome Debugging Tools to understand the bug
+* Locate code associated with the problem using a variety of Debugging and Code Inspection techniques
+* Fix the bug
+* Run the tests
+* Update the tests to allow for our fix
+
 NOTE: I am doing this work in an old branch of [VSCode](https://github.com/Microsoft/vscode), and modifying things
 directly in the repo so that you can clone and checkout my branch if you want
 to play along at home.  To do so:
@@ -38,10 +48,10 @@ Finding a good first bug in this list can be hard.  Let's begin by narrowing thi
 
 Often I find that students are drawn to working on new features--VSCode has
 [2,295 such issues right now](https://github.com/Microsoft/vscode/labels/feature-request).
-They like imagining how some new option or UI widget will work.  However, I'm going to suggest that these are not ideal for your first foray into a new codebase.  There are a few reasons why I suggest you avoid them at first.
+They like imagining how some new option or UI widget will work.  However, I'm going to suggest that these are not ideal for your first foray into a new codebase.  There are a few reasons why I suggest you avoid them, at first.
 
 1. New features are often controversial: many people may want them, but maintainers may not agree that they are necessary. Starting off in the centre of an argument over direction in a project is not where you want to be.
-2. Adding new functionality literally requires writing *new* code. To do one typically needs an understanding of the *existing* code, its internal APIs, tests, conventions, etc. This kind of expertise can be acquired; but it's likely that you (or I) don't have it yet.
+2. Adding new functionality literally requires writing *new* code. To do so one typically needs an understanding of the *existing* code, its internal APIs, tests, conventions, etc. This kind of expertise can be acquired; but it's likely that you (or I) don't have it yet.
 
 Instead of working on *new* code, I'm going to argue that the best place to begin
 is working on *existing* code, and this means fixing a bug.  As I write this,
